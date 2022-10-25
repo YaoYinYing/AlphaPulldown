@@ -4,12 +4,12 @@
 # #
 
 from alphafold.data.tools import jackhmmer
-from alphapulldown.objects import ChoppedObject
+from objects import ChoppedObject
 import json
 import os
 import pickle
 import logging
-from alphapulldown.plot_pae import plot_pae
+from plot_pae import plot_pae
 from alphafold.model import config
 from alphafold.model import model
 from alphafold.model import data

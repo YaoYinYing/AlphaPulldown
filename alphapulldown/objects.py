@@ -17,7 +17,7 @@ from alphafold.data import feature_processing
 from alphafold.data import templates
 from pathlib import Path as plPath
 from alphafold.data.tools import hhsearch
-from colabfold.batch import get_queries,unserialize_msa,get_msa_and_templates,msa_to_str,build_monomer_feature,parse_fasta
+#from colabfold.batch import get_queries,unserialize_msa,get_msa_and_templates,msa_to_str,build_monomer_feature,parse_fasta
 
 @contextlib.contextmanager
 def temp_fasta_file(sequence_str):
@@ -25,6 +25,7 @@ def temp_fasta_file(sequence_str):
     with tempfile.NamedTemporaryFile("w", suffix=".fasta") as fasta_file:
         fasta_file.write(sequence_str)
         fasta_file.seek(0)
+        #print(fasta_file)
         yield fasta_file.name
 
 
@@ -55,43 +56,16 @@ class MonomericObject:
 
     def all_seq_msa_features(
         self,
-        input_fasta_path,
-        uniprot_msa_runner,
-        save_msa,
         output_dir=None,
-        use_precomuted_msa=False,
     ):
-        """Get MSA features for unclustered uniprot, for pairing later on."""
-        if not use_precomuted_msa:
-            if not save_msa:
-                with tempfile.TemporaryDirectory() as tempdir:
-                    logging.info("now going to run uniprot runner")
-                    result = pipeline.run_msa_tool(
-                        uniprot_msa_runner,
-                        input_fasta_path,
-                        f"{tempdir}/uniprot.sto",
-                        "sto",
-                        use_precomuted_msa,
-                    )
-            elif save_msa and (output_dir is not None):
-                logging.info(
-                    f"now going to run uniprot runner and save uniprot alignment in {output_dir}"
-                )
-                result = pipeline.run_msa_tool(
-                    uniprot_msa_runner,
-                    input_fasta_path,
-                    f"{output_dir}/uniprot.sto",
-                    "sto",
-                    use_precomuted_msa,
-                )
-        else:
-            result = pipeline.run_msa_tool(
-                uniprot_msa_runner,
-                input_fasta_path,
-                f"{output_dir}/uniprot.sto",
-                "sto",
-                use_precomuted_msa,
-            )
+
+        # read preprocessed results
+        result = pipeline.read_msa_result(
+            msa_out_path=f"{output_dir}/uniprot.sto",
+            msa_format='sto',
+            max_sto_sequences=0
+        )
+
         msa = parsers.parse_stockholm(result["sto"])
         msa = msa.truncate(max_seqs=50000)
         all_seq_features = pipeline.make_msa_features([msa])
@@ -108,54 +82,49 @@ class MonomericObject:
         self, pipeline, output_dir=None, use_precomputed_msa=False, save_msa=True
     ):
         """a method that make msa and template features"""
-        if not use_precomputed_msa:
-            if not save_msa:
-                """this means no msa files are going to be saved"""
-                logging.info("You have chosen not to save msa output files")
-                sequence_str = f">{self.description}\n{self.sequence}"
-                with temp_fasta_file(
-                    sequence_str
-                ) as fasta_file, tempfile.TemporaryDirectory() as tmpdirname:
-                    self.feature_dict = pipeline.process(
-                        input_fasta_path=fasta_file, msa_output_dir=tmpdirname
-                    )
-                    pairing_results = self.all_seq_msa_features(
-                        fasta_file, self._uniprot_runner, save_msa
-                    )
-                    self.feature_dict.update(pairing_results)
 
-            else:
-                """this means no precomputed msa available and will save output msa files"""
-                msa_output_dir = os.path.join(output_dir, self.description)
-                sequence_str = f">{self.description}\n{self.sequence}"
-                logging.info("will save msa files in :{}".format(msa_output_dir))
-                plPath(msa_output_dir).mkdir(parents=True, exist_ok=True)
-                with temp_fasta_file(sequence_str) as fasta_file:
-                    self.feature_dict = pipeline.process(fasta_file, msa_output_dir)
-                    pairing_results = self.all_seq_msa_features(
-                        fasta_file, self._uniprot_runner, save_msa, msa_output_dir
-                    )
-                    self.feature_dict.update(pairing_results)
-        else:
-            """This means precomputed msa files are available"""
+        """Get MSA features for unclustered uniprot, for pairing later on."""
+        # Yinying edited here to remove redundant code and fit MSA parallel execution version.
+        # also reduce the code
+        # TODO: in not save_msa option, remove the files directly!
+        sequence_str = f">{self.description}\n{self.sequence}"
+        with temp_fasta_file(sequence_str) as fasta_file:
+            # if use_precomputed_msa or save_msa:
+            #
+            # else:
+            #     with tempfile.TemporaryDirectory() as tempdir:
+            #         logging.info("now going to run uniprot runner")
+            #         uniprot_res_dir = tempdir
             msa_output_dir = os.path.join(output_dir, self.description)
-            plPath(msa_output_dir).mkdir(parents=True, exist_ok=True)
-            logging.info(
-                "use precomputed msa. Searching for msa files in :{}".format(
-                    msa_output_dir
-                )
+            os.makedirs(msa_output_dir,exist_ok=True)
+
+            self.jackhmmer_uniprot_args =(
+                self._uniprot_runner,
+                fasta_file,
+                f"{msa_output_dir}/uniprot.sto",
+                "sto",
+                use_precomputed_msa,
+                0)
+
+            # preprocess uniprot msa building via a multithread shortcut
+            self.feature_dict = pipeline.process(
+                input_fasta_path=fasta_file,
+                msa_output_dir=msa_output_dir,
+                other_args=self.jackhmmer_uniprot_args
+
             )
-            sequence_str = f">{self.description}\n{self.sequence}"
-            with temp_fasta_file(sequence_str) as fasta_file:
-                self.feature_dict = pipeline.process(fasta_file, msa_output_dir)
-                pairing_results = self.all_seq_msa_features(
-                    fasta_file,
-                    self._uniprot_runner,
-                    save_msa,
-                    msa_output_dir,
-                    use_precomuted_msa=True,
-                )
-                self.feature_dict.update(pairing_results)
+
+            # read preprocessed uniprot msa
+            pairing_results = self.all_seq_msa_features(output_dir=msa_output_dir)
+            self.feature_dict.update(pairing_results)
+
+            if not save_msa:
+                try:
+                    print(f'MSA at {msa_output_dir} will be removed. ')
+                    os.removedirs(msa_output_dir)
+                except:
+                    print(f'Failed to removedirs: {msa_output_dir}')
+
 
     def mk_template(self,a3m_lines,template_path,query_sequence,max_template_date):
         """
@@ -184,78 +153,78 @@ class MonomericObject:
         )
         return dict(templates_result.features)
 
-    def make_mmseq_features(
-        self,DEFAULT_API_SERVER,template_path,max_template_date,output_dir=None
-    ):
-        """A method to use mmseq_remote to calculate msa"""
-        
-
-        logging.info("You chose to calculate MSA with mmseq2")
-        msa_mode = "MMseqs2 (UniRef+Environmental)"
-        keep_existing_results=True
-        result_dir = output_dir
-        use_templates=False
-        result_zip = os.path.join(result_dir,self.description,".result.zip")
-        if keep_existing_results and plPath(result_zip).is_file():
-            logging.info(f"Skipping {self.description} (result.zip)")
-
-        logging.info(f"looking for possible precomputed a3m at {os.path.join(result_dir,self.description+'.a3m')}")
-        try:
-            logging.info(f"input is {os.path.join(result_dir,self.description+'.a3m')}")
-            input_path=os.path.join(result_dir,self.description+'.a3m')
-            a3m_lines = [plPath(input_path).read_text()]
-            logging.info(f"Finished parsing the precalculated a3m_file\nNow will search for template in local {template_path}")
-        except:
-            a3m_lines=None
-
-        if a3m_lines is not None:
-                (
-                    unpaired_msa,
-                    paired_msa,
-                    query_seqs_unique,
-                    query_seqs_cardinality,
-                    template_features,
-                ) = unserialize_msa(a3m_lines, self.sequence)
-                
-        else:
-            (
-                unpaired_msa,
-                paired_msa,
-                query_seqs_unique,
-                query_seqs_cardinality,
-                template_features,
-            ) = get_msa_and_templates(
-                self.description,
-                self.sequence,
-                plPath(result_dir),
-                msa_mode,
-                use_templates,
-                custom_template_path=None,
-                pair_mode="none",
-                host_url=DEFAULT_API_SERVER,
-            )
-            msa = msa_to_str(
-                unpaired_msa, paired_msa, query_seqs_unique, query_seqs_cardinality
-            )
-            plPath(os.path.join(result_dir,self.description + ".a3m")).write_text(msa)
-            a3m_lines=[plPath(os.path.join(result_dir,self.description + ".a3m")).read_text()]
-        # unserialize_msa was from colabfold.batch and originally will only create mock template features
-        # below will search against pdb70 database using hhsearch and create real template features
-        logging.info("will search for templates in local template database")
-        template_features = [self.mk_template(a3m_lines[0],
-        template_path,query_sequence=self.sequence,max_template_date=max_template_date)]
-        self.feature_dict = build_monomer_feature(self.sequence,unpaired_msa[0],template_features[0])
-        
-        
-        # update feature_dict with 
-        valid_feats = msa_pairing.MSA_FEATURES + (
-            "msa_species_identifiers",
-            "msa_uniprot_accession_identifiers",
-        )
-        feats = {
-            f"{k}_all_seq": v for k, v in self.feature_dict.items() if k in valid_feats
-        }
-        self.feature_dict.update(feats)
+    # def make_mmseq_features(
+    #     self,DEFAULT_API_SERVER,template_path,max_template_date,output_dir=None
+    # ):
+    #     """A method to use mmseq_remote to calculate msa"""
+    #
+    #
+    #     logging.info("You chose to calculate MSA with mmseq2")
+    #     msa_mode = "MMseqs2 (UniRef+Environmental)"
+    #     keep_existing_results=True
+    #     result_dir = output_dir
+    #     use_templates=False
+    #     result_zip = os.path.join(result_dir,self.description,".result.zip")
+    #     if keep_existing_results and plPath(result_zip).is_file():
+    #         logging.info(f"Skipping {self.description} (result.zip)")
+    #
+    #     logging.info(f"looking for possible precomputed a3m at {os.path.join(result_dir,self.description+'.a3m')}")
+    #     try:
+    #         logging.info(f"input is {os.path.join(result_dir,self.description+'.a3m')}")
+    #         input_path=os.path.join(result_dir,self.description+'.a3m')
+    #         a3m_lines = [plPath(input_path).read_text()]
+    #         logging.info(f"Finished parsing the precalculated a3m_file\nNow will search for template in local {template_path}")
+    #     except:
+    #         a3m_lines=None
+    #
+    #     if a3m_lines is not None:
+    #             (
+    #                 unpaired_msa,
+    #                 paired_msa,
+    #                 query_seqs_unique,
+    #                 query_seqs_cardinality,
+    #                 template_features,
+    #             ) = unserialize_msa(a3m_lines, self.sequence)
+    #
+    #     else:
+    #         (
+    #             unpaired_msa,
+    #             paired_msa,
+    #             query_seqs_unique,
+    #             query_seqs_cardinality,
+    #             template_features,
+    #         ) = get_msa_and_templates(
+    #             self.description,
+    #             self.sequence,
+    #             plPath(result_dir),
+    #             msa_mode,
+    #             use_templates,
+    #             custom_template_path=None,
+    #             pair_mode="none",
+    #             host_url=DEFAULT_API_SERVER,
+    #         )
+    #         msa = msa_to_str(
+    #             unpaired_msa, paired_msa, query_seqs_unique, query_seqs_cardinality
+    #         )
+    #         plPath(os.path.join(result_dir,self.description + ".a3m")).write_text(msa)
+    #         a3m_lines=[plPath(os.path.join(result_dir,self.description + ".a3m")).read_text()]
+    #     # unserialize_msa was from colabfold.batch and originally will only create mock template features
+    #     # below will search against pdb70 database using hhsearch and create real template features
+    #     logging.info("will search for templates in local template database")
+    #     template_features = [self.mk_template(a3m_lines[0],
+    #     template_path,query_sequence=self.sequence,max_template_date=max_template_date)]
+    #     self.feature_dict = build_monomer_feature(self.sequence,unpaired_msa[0],template_features[0])
+    #
+    #
+    #     # update feature_dict with
+    #     valid_feats = msa_pairing.MSA_FEATURES + (
+    #         "msa_species_identifiers",
+    #         "msa_uniprot_accession_identifiers",
+    #     )
+    #     feats = {
+    #         f"{k}_all_seq": v for k, v in self.feature_dict.items() if k in valid_feats
+    #     }
+    #     self.feature_dict.update(feats)
 
 class ChoppedObject(MonomericObject):
     """chopped monomeric objects"""

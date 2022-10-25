@@ -1,0 +1,110 @@
+absl-py==1.0.0
+af2plots @ git+https://gitlab.com/gchojnowski/af2plots.git@768f35d002ab4380e6ca6ccc6953170b675c7da1
+alembic==1.7.4
+alphafold @ git+https://github.com/YaoYinYing/alphafold.git@626c3349ed6844fd3608eca8dcbdc07ecc5846b9
+astunparse==1.6.3
+attrs==22.1.0
+autopage==0.4.0
+awscli==1.20.65
+biopython==1.79
+botocore==1.21.65
+brotlipy @ file:///home/conda/feedstock_root/build_artifacts/brotlipy_1648854175163/work
+cachetools==5.2.0
+cctbx-base==2022.9
+certifi==2022.9.24
+cffi @ file:///home/conda/feedstock_root/build_artifacts/cffi_1666183775676/work
+charset-normalizer @ file:///home/conda/feedstock_root/build_artifacts/charset-normalizer_1661170624537/work
+chex==0.0.7
+cliff==3.9.0
+cmaes==0.8.2
+cmd2==2.2.0
+colorama==0.4.3
+colorlog==6.5.0
+contextlib2==21.6.0
+contourpy @ file:///home/conda/feedstock_root/build_artifacts/contourpy_1662135095963/work
+cryptography @ file:///home/conda/feedstock_root/build_artifacts/cryptography_1666563361635/work
+cycler @ file:///home/conda/feedstock_root/build_artifacts/cycler_1635519461629/work
+dm-haiku==0.0.7
+dm-tree==0.1.6
+docutils==0.15.2
+etils==0.8.0
+flatbuffers==1.12
+fonttools @ file:///home/conda/feedstock_root/build_artifacts/fonttools_1666389898967/work
+future @ file:///home/conda/feedstock_root/build_artifacts/future_1649010148304/work
+gast==0.4.0
+google-auth==2.13.0
+google-auth-oauthlib==0.4.6
+google-pasta==0.2.0
+greenlet==1.1.3.post0
+grpcio==1.50.0
+h5py==3.7.0
+idna @ file:///home/conda/feedstock_root/build_artifacts/idna_1663625384323/work
+immutabledict==2.0.0
+importlib-metadata==5.0.0
+importlib-resources==5.3.0
+jax==0.3.17
+jaxlib==0.3.15+cuda11.cudnn82
+jmespath==0.10.0
+jmp==0.0.2
+keras==2.9.0
+Keras-Preprocessing==1.1.2
+kiwisolver @ file:///home/conda/feedstock_root/build_artifacts/kiwisolver_1657953078266/work
+libclang==14.0.6
+libtbx.scitbx==0.0.0
+Mako==1.1.5
+Markdown==3.4.1
+MarkupSafe==2.1.1
+matplotlib @ file:///home/conda/feedstock_root/build_artifacts/matplotlib-suite_1665498666436/work
+ml-collections==0.1.0
+mrcfile @ file:///home/conda/feedstock_root/build_artifacts/mrcfile_1663870629802/work
+numpy @ file:///home/conda/feedstock_root/build_artifacts/numpy_1666092554508/work
+oauthlib==3.2.2
+OpenMM==7.5.1
+opt-einsum==3.3.0
+optuna==2.10.0
+packaging @ file:///home/conda/feedstock_root/build_artifacts/packaging_1637239678211/work
+pandas==1.3.4
+pbr==5.6.0
+pdbfixer @ file:///Users/jeffreywagner/miniconda3/envs/build/conda-bld/pdbfixer_1605294233265/work
+Pillow @ file:///home/conda/feedstock_root/build_artifacts/pillow_1660385857893/work
+prettytable==2.2.1
+protobuf==3.20.1
+psutil @ file:///home/conda/feedstock_root/build_artifacts/psutil_1666155379462/work
+py3Dmol==1.8.1
+pyasn1==0.4.8
+pyasn1-modules==0.2.8
+pycparser @ file:///home/conda/feedstock_root/build_artifacts/pycparser_1636257122734/work
+pyOpenSSL @ file:///home/conda/feedstock_root/build_artifacts/pyopenssl_1665350324128/work
+pyparsing @ file:///home/conda/feedstock_root/build_artifacts/pyparsing_1652235407899/work
+pyperclip==1.8.2
+PySocks @ file:///home/conda/feedstock_root/build_artifacts/pysocks_1661604839144/work
+python-dateutil @ file:///home/conda/feedstock_root/build_artifacts/python-dateutil_1626286286081/work
+python-Levenshtein==0.12.2
+pytz==2022.5
+PyYAML==6.0
+reportlab==3.5.68
+requests @ file:///home/conda/feedstock_root/build_artifacts/requests_1661872987712/work
+requests-oauthlib==1.3.1
+rsa==4.7.2
+s3transfer==0.5.0
+scipy==1.9.3
+six @ file:///home/conda/feedstock_root/build_artifacts/six_1620240208055/work
+SQLAlchemy==1.4.42
+stevedore==3.5.0
+tabulate==0.9.0
+tensorboard==2.9.0
+tensorboard-data-server==0.6.1
+tensorboard-plugin-wit==1.8.1
+tensorflow-cpu==2.9.0
+tensorflow-estimator==2.9.0
+tensorflow-io-gcs-filesystem==0.27.0
+termcolor==2.0.1
+toolz==0.12.0
+tqdm==4.64.1
+typing_extensions==4.4.0
+unicodedata2 @ file:///home/conda/feedstock_root/build_artifacts/unicodedata2_1649111919534/work
+urllib3 @ file:///home/conda/feedstock_root/build_artifacts/urllib3_1658789158161/work
+wcwidth==0.2.5
+Werkzeug==2.2.2
+wrapt==1.14.1
+zipp==3.10.0

@@ -44,20 +44,38 @@ Check if you have downloaded necessary parameters and databases (e.g. BFD, MGnif
 
 **Firstly**, install [Anaconda](https://www.anaconda.com/) and create AlphaPulldown environment, gathering necessary dependencies 
 ```bash
-conda create -n AlphaPulldown -c omnia -c bioconda -c conda-forge python==3.7 openmm pdbfixer kalign2=2.04 cctbx-base
+conda create -n AlphaPulldown -c omnia -c bioconda -c conda-forge python=3.8 openmm pdbfixer kalign2=2.04 cctbx-base -y
 ```
 
 **Secondly**, activate the AlphaPulldown environment and install AlphaPulldown
 ```bash
+# activate conda env
 source activate AlphaPulldown
-pip install alphapulldown
-pip install -q "jax[cuda]>=0.3.8,<0.3.10" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
+
+
+# amber relax tools 
+conda install -c conda-forge openmm=7.5.1 pdbfixer
+
+# Specific version of Alphafold, Parallel MSA execution enabled.
+pip install git+https://github.com/YaoYinYing/alphafold.git
+
+# Something like AlphaPickle?
+pip install git+https://gitlab.com/gchojnowski/af2plots.git
+
+# visualization tools
+pip install py3Dmol
+
+# upgrade jax and jaxlib
+pip install "jax[cuda]>=0.3.14,<0.4" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
 ```
 
 **Optionally**, if you do not have these software yet on your system, install [HMMER](http://hmmer.org/documentation.html), [HH-suite](https://github.com/soedinglab/hh-suite) from Anaconda
 ```bash
 source activate AlphaPulldown
-conda install -c bioconda hmmer hhsuite
+# MSA building tools
+conda install -c conda-forge -c bioconda kalign2=2.04 hhsuite=3.3.0 hmmer
 ```
 This usually works, but on some compute systems users may wish to use other versions or optimized builds of already installed HMMER and HH-suite.
 

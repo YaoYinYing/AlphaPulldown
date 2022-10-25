@@ -9,13 +9,13 @@
 import itertools
 from re import I
 from absl import app, flags, logging
-from alphapulldown.utils import *
+from utils import *
 from itertools import combinations
-from alphapulldown.objects import MultimericObject
+from objects import MultimericObject
 import os
 import shutil
 from pathlib import Path
-from alphapulldown.predict_structure import predict
+from predict_structure import predict
 
 
 

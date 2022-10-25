@@ -4,10 +4,8 @@
 # This script is just to create msa and structural features for each sequences and store them in pickle
 # #
 
-import os
-import pickle
-import sys
-from alphapulldown.objects import MonomericObject
+
+from objects import MonomericObject
 import importlib
 from absl import app
 from absl import flags
@@ -18,14 +16,13 @@ from alphafold.data.tools import hmmsearch
 from alphafold.data import templates
 import numpy as np
 import os
-from absl import logging, app
-import numpy as np
-from alphapulldown.utils import *
+
+from utils import *
 import contextlib
 from datetime import datetime
 import alphafold
 from pathlib import Path
-from colabfold.utils import DEFAULT_API_SERVER
+#from colabfold.utils import DEFAULT_API_SERVER
 
 @contextlib.contextmanager
 def output_meta_file(file_path):
@@ -163,6 +160,8 @@ def create_pipeline(flags_dict):
         small_bfd_database_path=small_bfd_database_path,
         use_small_bfd=use_small_bfd,
         use_precomputed_msas=FLAGS.use_precomputed_msas,
+        # yinying added it
+        num_threads=FLAGS.num_threads,
         template_searcher=hmmsearch.Hmmsearch(
             binary_path=FLAGS.hmmsearch_binary_path,
             hmmbuild_binary_path=FLAGS.hmmbuild_binary_path,
@@ -186,7 +185,6 @@ def check_existing_objects(output_dir, pickle_name):
 
 
 def create_and_save_monomer_objects(m, pipeline, flags_dict,use_mmseqs2=False):
-    logging.info("You are using the new version")
     if FLAGS.skip_existing and check_existing_objects(
         FLAGS.output_dir, f"{m.description}.pkl"
     ):
@@ -208,9 +206,10 @@ def create_and_save_monomer_objects(m, pipeline, flags_dict,use_mmseqs2=False):
                 save_msa=FLAGS.save_msa_files,
             )
         else:
-            m.make_mmseq_features(DEFAULT_API_SERVER,template_path=FLAGS.data_dir,
-            max_template_date=FLAGS.max_template_date,
-            output_dir=FLAGS.output_dir,)
+            # m.make_mmseq_features(DEFAULT_API_SERVER,template_path=FLAGS.data_dir,
+            # max_template_date=FLAGS.max_template_date,
+            # output_dir=FLAGS.output_dir,)
+            raise DeprecationWarning('Colabfold has been removed. ')
         pickle.dump(m, open(f"{FLAGS.output_dir}/{m.description}.pkl", "wb"))
         del m
 
