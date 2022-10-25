@@ -52,8 +52,6 @@ conda create -n AlphaPulldown -c omnia -c bioconda -c conda-forge python=3.8 ope
 # activate conda env
 source activate AlphaPulldown
 
-
-
 # amber relax tools 
 conda install -c conda-forge openmm=7.5.1 pdbfixer
 
