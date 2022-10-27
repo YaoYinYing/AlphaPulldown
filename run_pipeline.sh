@@ -64,9 +64,10 @@ while getopts ":b:B:c:C:o:j:m:" i; do
         esac
 done
 
-if [[ ! -f "$baits" && ! -f "$candidates" &&  ! -f "$baits_info" && ! -f "$candidates_info" ]];then
+if [[ ! -f "$baits" &&  ! -f "$baits_info" ]];then
   usage
 fi
+
 
 if [[ "$run_mode" != "" \
     &&"$run_mode" != "pulldown" \
@@ -90,6 +91,13 @@ fi
 
 if [[ "$run_mode" == "" ]];then
   run_mode="pulldown"
+fi
+
+if [[ "$run_mode" == "pulldown" ]];then
+  if [[ ! -f "$candidates" && ! -f "$candidates_info" ]];then
+    echo "Your choose ${run_mode} as run_mode, yet the -c and -C is not available! "
+    usage
+  fi
 fi
 
 source activate AlphaPulldown
