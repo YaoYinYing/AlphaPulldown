@@ -22,9 +22,9 @@ usage() {
         # edited by Yinying
         echo "-b <baits>              Baits sequences"
         echo "-B <baits_info>         Baits info, one sequence description per line."
-        echo "-c <candidates>         Candidates sequences"
-        echo "-C <candidates_info>    Candidates info, one sequence description per line."
         echo "Optional Parameters:"
+        echo "-c <candidates>         Candidates sequences. Required when run mode is pulldown."
+        echo "-C <candidates_info>    Candidates info, one sequence description per line. Required when run mode is pulldown."
         echo "-o <save_dir>           Where to save the results"
         echo "-j <nproc>              number of parallel worker for MSA building"
         echo "-m <run_mode>           Run mode. pulldown<default>, all_vs_all, homo-oligomer, custom."
