@@ -330,7 +330,6 @@ def predict_multimers(multimers):
 def main(argv):
     check_output_dir(FLAGS.output_path)
 
-
     if FLAGS.mode == "pulldown":
         bait_proteins = read_all_proteins(FLAGS.protein_lists[0])
         candidate_proteins = []
@@ -359,7 +358,10 @@ def main(argv):
 
     elif FLAGS.mode == "custom":
         multimers = create_custom_jobs(
-            FLAGS.protein_lists, FLAGS.monomer_objects_dir, job_index=FLAGS.job_index, pair_msa=not FLAGS.no_pair_msa
+            FLAGS.protein_lists,
+            FLAGS.monomer_objects_dir,
+            job_index=FLAGS.job_index,
+            pair_msa=not FLAGS.no_pair_msa
         )
 
 

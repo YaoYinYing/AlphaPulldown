@@ -63,6 +63,9 @@ pip install git+https://gitlab.com/gchojnowski/af2plots.git
 
 # visualization tools
 pip install py3Dmol
+pip install jupyterlab
+pip install ipywidgets
+
 
 # upgrade jax and jaxlib
 pip install "jax[cuda]>=0.3.14,<0.4" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
@@ -80,6 +83,23 @@ This usually works, but on some compute systems users may wish to use other vers
 ------
 
 ## Manuals
+
+## Run this pipeline
+```shell
+bash run_pipeline.sh -h
+
+Usage: run_pipeline.sh <OPTIONS>
+Required Parameters:
+-b <baits>              Baits sequences
+-B <baits_info>         Baits info, one sequence description per line.
+-c <candidates>         Candidates sequences
+-C <candidates_info>    Candidates info, one sequence description per line.
+Optional Parameters:
+-o <save_dir>           Where to save the results
+-j <nproc>              number of parallel worker for MSA building
+-m <run_mode>           Run mode. pulldown<default>, all_vs_all, homo-oligomer, custom.
+```
+
 AlphaPulldown supports four different modes of massive predictions: 
 
 * ```pulldown``` - to screen a list of "bait" proteins against a list or lists of other proteins

@@ -18,6 +18,8 @@ from alphafold.data import templates
 from pathlib import Path as plPath
 from alphafold.data.tools import hhsearch
 #from colabfold.batch import get_queries,unserialize_msa,get_msa_and_templates,msa_to_str,build_monomer_feature,parse_fasta
+import shutil
+
 
 @contextlib.contextmanager
 def temp_fasta_file(sequence_str):
@@ -121,7 +123,7 @@ class MonomericObject:
             if not save_msa:
                 try:
                     print(f'MSA at {msa_output_dir} will be removed. ')
-                    os.removedirs(msa_output_dir)
+                    shutil.rmtree(msa_output_dir, ignore_errors=True)
                 except:
                     print(f'Failed to removedirs: {msa_output_dir}')
 

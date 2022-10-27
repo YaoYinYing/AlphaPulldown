@@ -253,6 +253,7 @@ def main(argv):
         if FLAGS.seq_index is None or \
             (FLAGS.seq_index == seq_idx):
                 if curr_desc and not curr_desc.isspace():
+                    logging.info(f'processing {curr_desc} with sequence: \n{curr_seq} \n')
                     curr_monomer = MonomericObject(curr_desc, curr_seq)
                     curr_monomer.uniprot_runner = uniprot_runner
                     create_and_save_monomer_objects(curr_monomer, pipeline, 

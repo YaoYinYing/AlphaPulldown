@@ -12,9 +12,14 @@ from absl import flags, app, logging
 import json
 import numpy as np
 import pandas as pd
+import pathlib
 import subprocess
-
+import nbformat.v4 as nbf
+import nbformat
 from alphafold import data
+
+# determine the path of script
+script_pth=pathlib.Path(os.path.realpath(__file__)).resolve().parent
 
 flags.DEFINE_string("output_dir", '.', "directory where predicted models are stored")
 flags.DEFINE_float(
@@ -40,15 +45,17 @@ def examine_inter_pae(pae_mtx, seqs, cutoff):
 
 
 def create_notebook(combo, output_dir,figsize):
-    from nbformat import current as nbf
+
 
     nb = nbf.new_notebook()
     output_cells = []
-    md_cell = nbf.new_text_cell(
-        "markdown",
+    md_cell = nbf.new_markdown_cell(
+
         "# A notebook to display all the predictions with good inter-pae scores",
     )
     import_cell = nbf.new_code_cell(
+        "import os,sys\n"
+        f"sys.path.append('{script_pth.parent}')\n"
         "from analysis_pipeline.af2_3dmol import parse_results,parse_results_colour_chains"
     )
     disable_autosave_cell = nbf.new_code_cell(f"%autosave 0")
@@ -64,25 +71,25 @@ def create_notebook(combo, output_dir,figsize):
     for i in range(combo.shape[0]):
         job = combo.iloc[i, 0]
         iptm_score = combo.iloc[i, -1]
-        title_cell = nbf.new_text_cell("markdown", f"## {job} with iptm: {iptm_score}")
+        title_cell = nbf.new_markdown_cell(f"## {job} with iptm: {iptm_score}")
         output_cells.append(title_cell)
         subdir = os.path.join(base_dir, f"{job}")
-        subtitile1 = nbf.new_text_cell("markdown", f"### {job} PAE plots")
+        subtitile1 = nbf.new_markdown_cell(f"### {job} PAE plots")
         output_cells.append(subtitile1)
         code_cell_1 = nbf.new_code_cell(f"display_pae_plots('{subdir}',figsize=({figsize,figsize}))")
         output_cells.append(code_cell_1)
-        subtitle2 = nbf.new_text_cell("markdown", f"### {job} coloured by plddt")
+        subtitle2 = nbf.new_markdown_cell(f"### {job} coloured by plddt")
         output_cells.append(subtitle2)
 
         code_cell_2 = nbf.new_code_cell(f"parse_results('{subdir}')")
         output_cells.append(code_cell_2)
-        subtitile3 = nbf.new_text_cell("markdown", f"### {job} coloured by chains")
+        subtitile3 = nbf.new_markdown_cell(f"### {job} coloured by chains")
         output_cells.append(subtitile3)
         code_cell_3 = nbf.new_code_cell(f"parse_results_colour_chains('{subdir}')")
         output_cells.append(code_cell_3)
-    nb["worksheets"].append(nbf.new_worksheet(cells=output_cells))
-    with open(os.path.join(output_dir, "output.ipynb"), "w") as f:
-        nbf.write(nb, f, "ipynb", version=4)
+    nb['cells']=output_cells
+    with open(os.path.join(pathlib.Path(output_dir).resolve().parent, "output.ipynb"), "w") as f:
+        nbformat.write(nb, f, )
     logging.info("A notebook has been successfully created.")
     # logging.info("A notebook has been successfully created. Now will execute the notebook")
     # subprocess.run(f"source  activate programme_notebook && jupyter nbconvert --to notebook --inplace --execute {output_dir}/output.ipynb",shell=True,executable='/bin/bash')
@@ -128,12 +135,14 @@ def main(argv):
         logging.info(f"done for {job} {count} out of {len(jobs)} finished.")
 
     pi_score_df = pd.DataFrame()
+
     pi_score_df["jobs"] = good_jobs
     pi_score_df["iptm+ptm"] = iptm_ptm
     pi_score_df["iptm"] = iptm
 
     pi_score_df = pi_score_df.sort_values(by="iptm", ascending=False)
 
+    print(pi_score_df)
     if FLAGS.create_notebook:
         create_notebook(pi_score_df, FLAGS.output_dir,FLAGS.pae_figsize)
 
