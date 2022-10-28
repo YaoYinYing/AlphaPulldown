@@ -49,76 +49,12 @@ def read_ph(ifname, selstr=None, verbose=True):
 
     return phsel, symm
 
-def parse_results(output, color=None, models=5, multimer=False):
+def parse_results(output, color='lDDT', models=5):
 
-    if color is None:
-        color = ["lDDT", "rainbow", "chain"][0]
-
-    datadir = os.path.expanduser(output)
-
-    pdb_fnames = sorted(glob.glob("%s/ranked*.pdb" % datadir))
-
-    ph_array = []
-    for idx, fn in enumerate(pdb_fnames[:models]):
-        _ph, _symm = read_ph(fn)
-        if len(ph_array) > 0:
-            _s = superpose.least_squares_fit(
-                ph_array[0].atoms().extract_xyz(),
-                _ph.atoms().extract_xyz(),
-                method=["kearsley", "kabsch"][0],
-            )
-            rtmx = matrix.rt((_s.r, _s.t))
-            _ph.atoms().set_xyz(new_xyz=rtmx * _ph.atoms().extract_xyz())
-
-        ph_array.append(_ph)
-
-    chain_ids = [_.id for _ in _ph.chains()]
-
-    if len(chain_ids) > 1 and color == "chain":
-        view = py3Dmol.view(
-            js="https://3dmol.org/build/3Dmol.js",
-            width=900,
-            height=600,
-            viewergrid=(1, 2),
-        )
-
-        viewer = (0, 0)
-        view.addModel(ph_array[0].as_pdb_string(), "pdb", viewer=viewer)
-        view.zoomTo(viewer=viewer)
-        set_3dmol_styles(
-            view, viewer, chain_ids=[_.id for _ in _ph.chains()], color="chain"
-        )
-
-        viewer = (0, 1)
-        view.addModel(ph_array[0].as_pdb_string(), "pdb", viewer=viewer)
-        view.zoomTo(viewer=viewer)
-        set_3dmol_styles(
-            view, viewer, chain_ids=[_.id for _ in _ph.chains()], color="lDDT"
-        )
-
-    else:
-        frames = min(models, len(ph_array))
-        view = py3Dmol.view(
-            js="https://3dmol.org/build/3Dmol.js",
-            width=400 * frames,
-            height=400,
-            viewergrid=(1, frames),
-        )
-
-        for idx, _ph in enumerate(ph_array):
-            viewer = (0, idx)
-            view.addModel(_ph.as_pdb_string(), "pdb", viewer=viewer)
-            view.zoomTo(viewer=viewer)
-
-            set_3dmol_styles(view, viewer, chain_ids=chain_ids, color=color)
-
-    view.show()
-
-
-def parse_results_colour_chains(output, color=None, models=5, multimer=False):
-
-    if color is None:
-        color = ["chain"][0]
+    color_set=["lDDT", "rainbow", "chain"]
+    if color not in color_set:
+        print(f"Unknown color: {color}, will set to 'lDDT'.")
+        color='lDDT'
 
     datadir = os.path.expanduser(output)
 
@@ -139,36 +75,13 @@ def parse_results_colour_chains(output, color=None, models=5, multimer=False):
         ph_array.append(_ph)
 
     chain_ids = [_.id for _ in _ph.chains()]
-
-    if len(chain_ids) > 1 and color == None:
-        view = py3Dmol.view(
-            js="https://3dmol.org/build/3Dmol.js",
-            width=900,
-            height=600,
-            viewergrid=(1, 2),
-        )
-
-        viewer = (0, 0)
-        view.addModel(ph_array[0].as_pdb_string(), "pdb", viewer=viewer)
-        view.zoomTo(viewer=viewer)
-        set_3dmol_styles(
-            view, viewer, chain_ids=[_.id for _ in _ph.chains()], color="chain"
-        )
-
-        viewer = (0, 1)
-        view.addModel(ph_array[0].as_pdb_string(), "pdb", viewer=viewer)
-        view.zoomTo(viewer=viewer)
-        set_3dmol_styles(
-            view, viewer, chain_ids=[_.id for _ in _ph.chains()], color="chain"
-        )
-
-    else:
-        frames = min(models, len(ph_array))
+    frames = min(models, len(ph_array))
+    if len(chain_ids) > 1 :
         view = py3Dmol.view(
             js="https://3dmol.org/build/3Dmol.js",
             width=400 * frames,
             height=400,
-            viewergrid=(1, frames),
+            viewergrid=(1,frames),
         )
 
         for idx, _ph in enumerate(ph_array):
@@ -178,10 +91,8 @@ def parse_results_colour_chains(output, color=None, models=5, multimer=False):
 
             set_3dmol_styles(view, viewer, chain_ids=chain_ids, color=color)
 
-    view.show()
+        view.show()
 
-
-# ------------------------------------------------------
 
 
 def set_3dmol_styles(

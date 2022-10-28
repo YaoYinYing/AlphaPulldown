@@ -4,7 +4,7 @@
 # bash /repo/AlphaPulldown/run_pipeline.sh -b CYP736A167.fasta -B P450_baits.txt -c CPR_candidates.fasta  -C CPR_candidates.txt
 
 # inspect run script location
-AFP_REPO=$(readlink -f $(dirname $0));
+AFP_REPO=$(readlink -f $(dirname "$0"));
 # database dir
 DATABASE_DIR="/mnt/db/"
 
@@ -20,19 +20,21 @@ usage() {
         echo "Usage: $0 <OPTIONS>"
         echo "Required Parameters:"
         # edited by Yinying
-        echo "-b <baits>              Baits sequences"
-        echo "-B <baits_info>         Baits info, one sequence description per line."
+        echo "-b <baits>                      Baits sequences"
+        echo "-B <baits_info>                 Baits info, one sequence description per line."
         echo "Optional Parameters:"
-        echo "-c <candidates>         Candidates sequences. Required when run mode is pulldown."
-        echo "-C <candidates_info>    Candidates info, one sequence description per line. Required when run mode is pulldown."
-        echo "-o <save_dir>           Where to save the results"
-        echo "-j <nproc>              number of parallel worker for MSA building"
-        echo "-m <run_mode>           Run mode. pulldown<default>, all_vs_all, homo-oligomer, custom."
+        echo "-c <candidates>                 Candidates sequences. Required when run mode is pulldown."
+        echo "-C <candidates_info>            Candidates info, one sequence description per line. Required when run mode is pulldown."
+        echo "-o <save_dir>                   Where to save the results"
+        echo "-j <nproc>                      number of parallel worker for MSA building"
+        echo "-m <run_mode>                   Run mode. pulldown<default>, all_vs_all, homo-oligomer, custom."
+        echo "-r <num_cycle>                  Number of recycle step."
+        echo "-N <num_predictions_per_model>  Number of predictions per model. "
         echo ""
         exit 1
 }
 
-while getopts ":b:B:c:C:o:j:m:" i; do
+while getopts ":b:B:c:C:o:j:r:m:N:" i; do
         case "${i}" in
 
         b)
@@ -53,8 +55,14 @@ while getopts ":b:B:c:C:o:j:m:" i; do
         o)
                 save_dir=$OPTARG
         ;;
+        r)
+                num_cycle=$OPTARG
+        ;;
         m)
                 run_mode=$OPTARG
+        ;;
+        N)
+                num_predictions_per_model=$OPTARG
         ;;
         *)
                 echo Unknown argument!
@@ -82,11 +90,19 @@ if [[ "$save_dir" == "" ]];then
 fi
 
 if [[ ! -p "$save_dir" ]];then
-  mkdir -p $save_dir
+  mkdir -p "$save_dir"
 fi
 
 if [[ "$nproc" == "" ]];then
   nproc=32
+fi
+
+if [[ "$num_cycle" == "" ]];then
+  num_cycle=3
+fi
+
+if [[ "$num_predictions_per_model" == "" ]];then
+  num_predictions_per_model=1
 fi
 
 if [[ "$run_mode" == "" ]];then
@@ -123,8 +139,8 @@ eval "$cmd"
 echo 'run alphapulldown ...'
 cmd="python $AFP_REPO/alphapulldown/run_multimer_jobs.py \
   --mode=${run_mode} \
-  --num_cycle=3 \
-  --num_predictions_per_model=1 \
+  --num_cycle=${num_cycle} \
+  --num_predictions_per_model=${num_predictions_per_model} \
   --output_path=${save_dir}/predict \
   --data_dir=${DATABASE_DIR} \
   --protein_lists=${baits_info},${candidates_info} \

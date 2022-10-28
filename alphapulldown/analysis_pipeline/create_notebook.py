@@ -56,7 +56,7 @@ def create_notebook(combo, output_dir,figsize):
     import_cell = nbf.new_code_cell(
         "import os,sys\n"
         f"sys.path.append('{script_pth.parent}')\n"
-        "from analysis_pipeline.af2_3dmol import parse_results,parse_results_colour_chains"
+        "from analysis_pipeline.af2_3dmol import parse_results"
     )
     disable_autosave_cell = nbf.new_code_cell(f"%autosave 0")
     output_cells.append(md_cell)
@@ -81,11 +81,11 @@ def create_notebook(combo, output_dir,figsize):
         subtitle2 = nbf.new_markdown_cell(f"### {job} coloured by plddt")
         output_cells.append(subtitle2)
 
-        code_cell_2 = nbf.new_code_cell(f"parse_results('{subdir}')")
+        code_cell_2 = nbf.new_code_cell(f"parse_results('{subdir}',color='lDDT')")
         output_cells.append(code_cell_2)
         subtitile3 = nbf.new_markdown_cell(f"### {job} coloured by chains")
         output_cells.append(subtitile3)
-        code_cell_3 = nbf.new_code_cell(f"parse_results_colour_chains('{subdir}')")
+        code_cell_3 = nbf.new_code_cell(f"parse_results('{subdir}',color='chain')")
         output_cells.append(code_cell_3)
     nb['cells']=output_cells
     with open(os.path.join(pathlib.Path(output_dir).resolve().parent, "output.ipynb"), "w") as f:
