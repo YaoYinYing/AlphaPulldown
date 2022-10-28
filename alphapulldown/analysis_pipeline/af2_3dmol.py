@@ -79,16 +79,15 @@ def parse_results(output, color='lDDT', models=5):
     if len(chain_ids) > 1 :
         view = py3Dmol.view(
             js="https://3dmol.org/build/3Dmol.js",
-            width=400 * frames,
-            height=400,
-            viewergrid=(1,frames),
+            width=800,
+            height=800 * frames,
+            viewergrid=(frames,1),
         )
 
         for idx, _ph in enumerate(ph_array):
-            viewer = (0, idx)
+            viewer = (idx,0)
             view.addModel(_ph.as_pdb_string(), "pdb", viewer=viewer)
             view.zoomTo(viewer=viewer)
-
             set_3dmol_styles(view, viewer, chain_ids=chain_ids, color=color)
 
         view.show()
