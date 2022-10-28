@@ -86,18 +86,20 @@ This usually works, but on some compute systems users may wish to use other vers
 
 ## Run this pipeline
 ```shell
-bash run_pipeline.sh -h
+bash /repo/AlphaPulldown/run_pipeline.sh -h
 
-Usage: run_pipeline.sh <OPTIONS>
+Usage: /repo/AlphaPulldown/run_pipeline.sh <OPTIONS>
 Required Parameters:
--b <baits>              Baits sequences
--B <baits_info>         Baits info, one sequence description per line.
+-b <baits>                      Baits sequences
+-B <baits_info>                 Baits info, one sequence description per line.
 Optional Parameters:
--c <candidates>         Candidates sequences. Required when run mode is pulldown.
--C <candidates_info>    Candidates info, one sequence description per line. Required when run mode is pulldown.
--o <save_dir>           Where to save the results
--j <nproc>              number of parallel worker for MSA building
--m <run_mode>           Run mode. pulldown<default>, all_vs_all, homo-oligomer, custom.
+-c <candidates>                 Candidates sequences. Required when run mode is pulldown.
+-C <candidates_info>            Candidates info, one sequence description per line. Required when run mode is pulldown.
+-o <save_dir>                   Where to save the results
+-j <nproc>                      number of parallel worker for MSA building
+-m <run_mode>                   Run mode. pulldown<default>, all_vs_all, homo-oligomer, custom.
+-r <num_cycle>                  Number of recycle step.
+-N <num_predictions_per_model>  Number of predictions per model.
 ```
 
 AlphaPulldown supports four different modes of massive predictions: 
