@@ -28,6 +28,7 @@ flags.DEFINE_float(
 flags.DEFINE_boolean("create_notebook", True, "Whether creating a notebook")
 flags.DEFINE_integer("surface_thres", 2, "surface threshold. must be integer")
 flags.DEFINE_integer("pae_figsize",50,"figsize of pae_plot, default is 50")
+
 FLAGS = flags.FLAGS
 
 
@@ -67,13 +68,13 @@ def create_notebook(combo, output_dir,figsize):
         "from analysis_pipeline.utils import display_pae_plots"
     )
     output_cells.append(import_cell)
-    base_dir = output_dir
+    base_dir = pathlib.Path(output_dir).resolve()
     for i in range(combo.shape[0]):
         job = combo.iloc[i, 0]
         iptm_score = combo.iloc[i, -1]
         title_cell = nbf.new_markdown_cell(f"## {job} with iptm: {iptm_score}")
         output_cells.append(title_cell)
-        subdir = os.path.join(base_dir, f"{job}")
+        subdir = base_dir.joinpath(job)
         subtitile1 = nbf.new_markdown_cell(f"### {job} PAE plots")
         output_cells.append(subtitile1)
         code_cell_1 = nbf.new_code_cell(f"display_pae_plots('{subdir}',figsize=({figsize,figsize}))")

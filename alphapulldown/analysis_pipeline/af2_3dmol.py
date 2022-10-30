@@ -49,7 +49,7 @@ def read_ph(ifname, selstr=None, verbose=True):
 
     return phsel, symm
 
-def parse_results(output, color='lDDT', models=5):
+def parse_results(output, color='lDDT', models=5,window_size=400,top=5):
 
     color_set=["lDDT", "rainbow", "chain"]
     if color not in color_set:
@@ -59,9 +59,15 @@ def parse_results(output, color='lDDT', models=5):
     datadir = os.path.expanduser(output)
 
     pdb_fnames = sorted(glob.glob("%s/ranked*.pdb" % datadir))
+    #print(pdb_fnames)
+    # expected pdb filename: {parent}/<job>/ranked_{rank}.pdb
+
+    assert top <= len(pdb_fnames)
+
+    pdb_to_vis=[f'{output}/ranked_{rank}.pdb' for rank in range(top)]
 
     ph_array = []
-    for idx, fn in enumerate(pdb_fnames[:models]):
+    for idx, fn in enumerate(pdb_to_vis):
         _ph, _symm = read_ph(fn)
         if len(ph_array) > 0:
             _s = superpose.least_squares_fit(
@@ -79,8 +85,8 @@ def parse_results(output, color='lDDT', models=5):
     if len(chain_ids) > 1 :
         view = py3Dmol.view(
             js="https://3dmol.org/build/3Dmol.js",
-            width=800,
-            height=800 * frames,
+            width=window_size,
+            height=window_size * frames,
             viewergrid=(frames,1),
         )
 
