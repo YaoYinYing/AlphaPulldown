@@ -28,6 +28,8 @@ flags.DEFINE_float(
 flags.DEFINE_boolean("create_notebook", True, "Whether creating a notebook")
 flags.DEFINE_integer("surface_thres", 2, "surface threshold. must be integer")
 flags.DEFINE_integer("pae_figsize",50,"figsize of pae_plot, default is 50")
+# added by Yinying
+flags.DEFINE_integer("top",5,"Visualize top ranked model, default is 5")
 
 FLAGS = flags.FLAGS
 
@@ -45,7 +47,7 @@ def examine_inter_pae(pae_mtx, seqs, cutoff):
     return check
 
 
-def create_notebook(combo, output_dir,figsize):
+def create_notebook(combo, output_dir,figsize,top=5):
 
 
     nb = nbf.new_notebook()
@@ -77,16 +79,16 @@ def create_notebook(combo, output_dir,figsize):
         subdir = base_dir.joinpath(job)
         subtitile1 = nbf.new_markdown_cell(f"### {job} PAE plots")
         output_cells.append(subtitile1)
-        code_cell_1 = nbf.new_code_cell(f"display_pae_plots('{subdir}',figsize=({figsize,figsize}))")
+        code_cell_1 = nbf.new_code_cell(f"display_pae_plots('{subdir}',figsize=({figsize,figsize}),top={top})")
         output_cells.append(code_cell_1)
         subtitle2 = nbf.new_markdown_cell(f"### {job} coloured by plddt")
         output_cells.append(subtitle2)
 
-        code_cell_2 = nbf.new_code_cell(f"parse_results('{subdir}',color='lDDT')")
+        code_cell_2 = nbf.new_code_cell(f"parse_results('{subdir}',color='lDDT',top={top})")
         output_cells.append(code_cell_2)
         subtitile3 = nbf.new_markdown_cell(f"### {job} coloured by chains")
         output_cells.append(subtitile3)
-        code_cell_3 = nbf.new_code_cell(f"parse_results('{subdir}',color='chain')")
+        code_cell_3 = nbf.new_code_cell(f"parse_results('{subdir}',color='chain',top={top})")
         output_cells.append(code_cell_3)
     nb['cells']=output_cells
     with open(os.path.join(pathlib.Path(output_dir).resolve().parent, "output.ipynb"), "w") as f:
@@ -145,7 +147,7 @@ def main(argv):
 
     print(pi_score_df)
     if FLAGS.create_notebook:
-        create_notebook(pi_score_df, FLAGS.output_dir,FLAGS.pae_figsize)
+        create_notebook(pi_score_df, FLAGS.output_dir,FLAGS.pae_figsize,top=FLAGS.top)
 
 
 if __name__ == "__main__":
